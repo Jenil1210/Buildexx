@@ -1,0 +1,668 @@
+/* ========================================
+   Dashboard Unified Styles
+   Consistent styling for User, Builder, and Admin dashboards
+   ======================================== */
+
+/* Dashboard Tab Variables */
+:root {
+  /* Tab Colors - Dark Theme */
+  --tab-bg-inactive: rgba(17, 42, 70, 0.8);
+  --tab-bg-hover: rgba(200, 162, 74, 0.15);
+  --tab-bg-active: linear-gradient(135deg, #C8A24A 0%, #9E7C2F 100%);
+
+  --tab-text-inactive: #94A3B8;
+  --tab-text-hover: #E2E8F0;
+  --tab-text-active: #0F172A;
+
+  --tab-border-inactive: rgba(226, 232, 240, 0.1);
+  --tab-border-hover: rgba(200, 162, 74, 0.4);
+  --tab-border-active: transparent;
+
+  /* Tab Sizing */
+  --tab-padding: 12px 24px;
+  --tab-border-radius: 12px;
+  --tab-font-weight: 600;
+  --tab-font-size: 0.9rem;
+  --tab-gap: 8px;
+
+  /* Dashboard Cards */
+  --dashboard-card-bg: #112A46;
+  --dashboard-card-border: rgba(226, 232, 240, 0.08);
+  --dashboard-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --dashboard-card-radius: 16px;
+
+  /* Stats Colors */
+  --stat-gold: #C8A24A;
+  --stat-green: #10B981;
+  --stat-blue: #3B82F6;
+  --stat-purple: #8B5CF6;
+  --stat-red: #EF4444;
+  --stat-orange: #F59E0B;
+}
+
+/* Tab Container - Pill wrapper - HIGH SPECIFICITY */
+div.dashboard-tabs,
+.dashboard-tabs {
+  display: inline-flex !important;
+  gap: 8px !important;
+  padding: 8px !important;
+  background: #0B1C30 !important;
+  backdrop-filter: blur(12px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  margin-bottom: 2.5rem !important;
+  flex-wrap: wrap !important;
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+/* Individual Tab Button - Redesigned as Pill - HIGH SPECIFICITY */
+body .dashboard-tabs button.dashboard-tab,
+.dashboard-tabs button.dashboard-tab,
+button.dashboard-tab {
+  background: transparent !important;
+  border: none !important;
+  color: #94A3B8 !important;
+  padding: 12px 24px !important;
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Tab Icon */
+.dashboard-tab i {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+/* Hover State */
+.dashboard-tabs .dashboard-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #FFFFFF;
+  transform: scale(1.02);
+}
+
+.dashboard-tabs .dashboard-tab:hover:not(.active) i {
+  transform: translateY(-1px) scale(1.1);
+}
+
+/* Active State - Gold Pill - HIGH SPECIFICITY */
+body .dashboard-tabs button.dashboard-tab.active,
+.dashboard-tabs button.dashboard-tab.active,
+button.dashboard-tab.active {
+  background: linear-gradient(135deg, #FFD700 0%, #C8A24A 100%) !important;
+  color: #0F172A !important;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+button.dashboard-tab.active i {
+  color: #0F172A !important;
+}
+
+/* Focus State for Accessibility */
+.dashboard-tab:focus {
+  outline: 2px solid var(--stat-gold);
+  outline-offset: 2px;
+}
+
+/* Active Indicator Underline */
+.dashboard-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 3px;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  background: linear-gradient(135deg, var(--dashboard-card-bg) 0%, #0B1C30 100%);
+  border-radius: 20px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-header::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(200, 162, 74, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.dashboard-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-header-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--stat-gold);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-header-icon i {
+  font-size: 2rem;
+  color: #0F172A;
+}
+
+.dashboard-header h2 {
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #FFFFFF;
+}
+
+.dashboard-header p {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Dashboard Card */
+.dashboard-card {
+  background: var(--dashboard-card-bg);
+  border-radius: var(--dashboard-card-radius);
+  padding: 24px;
+  border: 1px solid var(--dashboard-card-border);
+  box-shadow: var(--dashboard-card-shadow);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  border-color: rgba(200, 162, 74, 0.2);
+}
+
+/* Stats Card */
+.stats-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stats-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-icon.gold {
+  background: rgba(200, 162, 74, 0.15);
+}
+
+.stats-icon.green {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.stats-icon.blue {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.stats-icon.purple {
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.stats-icon.red {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.stats-icon.orange {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.stats-icon i.gold {
+  color: var(--stat-gold);
+}
+
+.stats-icon i.green {
+  color: var(--stat-green);
+}
+
+.stats-icon i.blue {
+  color: var(--stat-blue);
+}
+
+.stats-icon i.purple {
+  color: var(--stat-purple);
+}
+
+.stats-icon i.red {
+  color: var(--stat-red);
+}
+
+.stats-icon i.orange {
+  color: var(--stat-orange);
+}
+
+.stats-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 2px;
+}
+
+.stats-label {
+  font-size: 0.85rem;
+  color: #94A3B8;
+}
+
+/* Section Title */
+.dashboard-section-title {
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-section-title i {
+  color: var(--stat-gold);
+}
+
+/* Empty State */
+.dashboard-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.dashboard-empty-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.dashboard-empty-state h5 {
+  color: #E2E8F0;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-empty-state p {
+  color: #64748B;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Table Styles */
+.dashboard-table {
+  width: 100%;
+  color: #E2E8F0;
+}
+
+.dashboard-table thead th {
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+  text-align: left;
+}
+
+.dashboard-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.05);
+  vertical-align: middle;
+}
+
+.dashboard-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.dashboard-table tbody tr:hover {
+  background: rgba(200, 162, 74, 0.05);
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-badge.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+.status-badge.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+}
+
+.status-badge.danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+.status-badge.info {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
+}
+
+/* Action Buttons */
+.dashboard-action-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dashboard-action-btn.primary {
+  background: linear-gradient(135deg, #C8A24A, #9E7C2F);
+  color: #0F172A;
+}
+
+.dashboard-action-btn.success {
+  background: #10B981;
+  color: white;
+}
+
+.dashboard-action-btn.danger {
+  background: #EF4444;
+  color: white;
+}
+
+.dashboard-action-btn.outline {
+  background: transparent;
+  border: 1px solid rgba(226, 232, 240, 0.2);
+  color: #94A3B8;
+}
+
+.dashboard-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading Spinner */
+.dashboard-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+}
+
+.dashboard-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(200, 162, 74, 0.2);
+  border-top-color: var(--stat-gold);
+  border-radius: 50%;
+  animation: dashboard-spin 1s linear infinite;
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tab Content Loading Overlay */
+.tab-content-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 3rem;
+  background: var(--dashboard-card-bg);
+  border-radius: var(--dashboard-card-radius);
+  border: 1px solid var(--dashboard-card-border);
+}
+
+.tab-content-loading .spinner-container {
+  width: 56px;
+  height: 56px;
+  border: 4px solid rgba(200, 162, 74, 0.15);
+  border-top-color: var(--stat-gold);
+  border-radius: 50%;
+  animation: dashboard-spin 0.9s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.tab-content-loading .loading-text {
+  color: #94A3B8;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.tab-content-loading .loading-text span {
+  color: var(--stat-gold);
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quick-action-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-action-btn.primary {
+  background: linear-gradient(135deg, #C8A24A, #9E7C2F);
+  color: #0F172A;
+}
+
+.quick-action-btn.secondary {
+  background: rgba(17, 42, 70, 0.8);
+  color: #94A3B8;
+  border: 1px solid rgba(226, 232, 240, 0.1);
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.quick-action-btn.primary:hover {
+  box-shadow: 0 4px 15px rgba(200, 162, 74, 0.35);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .dashboard-tabs {
+    gap: 6px;
+  }
+
+  .dashboard-tab {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .dashboard-header {
+    padding: 24px;
+  }
+
+  .dashboard-header-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .dashboard-card {
+    padding: 16px;
+  }
+}
+
+/* ========================================
+   Dark Theme Overrides for Bootstrap Components
+   Ensures tables, forms, and other Bootstrap elements
+   match the dark dashboard theme
+   ======================================== */
+
+/* Table Dark Theme Override */
+.builder-dashboard-page .table,
+.builder-dashboard-page table,
+.admin-dashboard-page .table,
+.admin-dashboard-page table {
+  background: transparent !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var(--primary-text) !important;
+  color: var(--primary-text) !important;
+}
+
+.builder-dashboard-page .table thead th,
+.builder-dashboard-page table thead th,
+.admin-dashboard-page .table thead th,
+.admin-dashboard-page table thead th {
+  background: rgba(17, 42, 70, 0.5) !important;
+  color: var(--primary-text) !important;
+  border-color: rgba(226, 232, 240, 0.1) !important;
+  font-weight: 600;
+}
+
+.builder-dashboard-page .table tbody tr,
+.builder-dashboard-page table tbody tr,
+.admin-dashboard-page .table tbody tr,
+.admin-dashboard-page table tbody tr {
+  background: transparent !important;
+  --bs-table-bg: transparent !important;
+  border-color: rgba(226, 232, 240, 0.1) !important;
+}
+
+.builder-dashboard-page .table tbody td,
+.builder-dashboard-page table tbody td,
+.admin-dashboard-page .table tbody td,
+.admin-dashboard-page table tbody td {
+  background: transparent !important;
+  color: var(--primary-text) !important;
+  border-color: rgba(226, 232, 240, 0.1) !important;
+}
+
+.builder-dashboard-page .table-hover tbody tr:hover,
+.builder-dashboard-page table.table-hover tbody tr:hover,
+.admin-dashboard-page .table-hover tbody tr:hover,
+.admin-dashboard-page table.table-hover tbody tr:hover {
+  background: rgba(200, 162, 74, 0.1) !important;
+  --bs-table-hover-bg: rgba(200, 162, 74, 0.1) !important;
+}
+
+/* Form Controls Dark Theme Override */
+.builder-dashboard-page .form-control,
+.builder-dashboard-page .form-select {
+  background: var(--card-bg) !important;
+  color: var(--primary-text) !important;
+  border-color: rgba(226, 232, 240, 0.15) !important;
+}
+
+.builder-dashboard-page .form-control:focus,
+.builder-dashboard-page .form-select:focus {
+  background: var(--card-bg) !important;
+  color: var(--primary-text) !important;
+  border-color: var(--construction-gold) !important;
+  box-shadow: 0 0 0 2px rgba(200, 162, 74, 0.2) !important;
+}
+
+.builder-dashboard-page .form-control::placeholder {
+  color: rgba(148, 163, 184, 0.6) !important;
+}
+
+/* Dropdown Options - Need specific styling */
+.builder-dashboard-page .form-select option {
+  background: #1E3A5F;
+  color: var(--primary-text);
+}
+
+/* Input Group Dark Theme */
+.builder-dashboard-page .input-group-text {
+  background: rgba(17, 42, 70, 0.8) !important;
+  color: var(--primary-text) !important;
+  border-color: rgba(226, 232, 240, 0.15) !important;
+}
+
+/* Alerts Dark Theme */
+.builder-dashboard-page .alert {
+  border-radius: 12px;
+}
+
+.builder-dashboard-page .text-muted {
+  color: #94A3B8 !important;
+}
+
+/* Custom Tooltip */
+.custom-tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.custom-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 1000;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
