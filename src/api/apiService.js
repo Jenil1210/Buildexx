@@ -357,31 +357,7 @@ export const uploadPanoramaImages = async (files) => {
 
 // --- User/Builder/Admin Specific ---
 
-// User Profile APIs
-export const getUser = async (id) => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/users/${id}`);
-        // Response is the user object directly or a map
-        const data = await handleResponse(response);
-        return { success: true, data };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-};
 
-export const updateUser = async (id, userData) => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
-        const data = await handleResponse(response);
-        return { success: true, ...data };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-};
 
 export const scheduleVisit = async (data) => {
     try {

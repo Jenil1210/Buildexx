@@ -23,7 +23,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
-const Profile = lazy(() => import('./pages/Profile'));
+
 
 // ComparePropertiesModal is a component
 
@@ -166,11 +166,7 @@ function AppContent() {
                 </ProtectedRoute>
               } />
 
-              <Route path="/profile" element={
-                <ProtectedRoute allowedRoles={['user', 'builder', 'admin']}>
-                  <Profile />
-                </ProtectedRoute>
-              } />
+
 
               <Route path="*" element={<Home />} />
             </Routes>

@@ -41,47 +41,4 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    Map<String, Object> userData = new java.util.HashMap<>();
-                    userData.put("id", user.getId());
-                    userData.put("username", user.getUsername());
-                    userData.put("email", user.getEmail());
-                    userData.put("full_name", user.getFullName());
-                    userData.put("phone", user.getPhone());
-                    userData.put("role", user.getRole());
-                    // Builder specific fields
-                    userData.put("company_name", user.getCompanyName());
-                    userData.put("gst_number", user.getGstNumber());
-                    userData.put("address", user.getAddress());
-                    userData.put("verification_status", user.getVerificationStatus());
-                    return ResponseEntity.ok(userData);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable Long id, @RequestBody Map<String, String> updates) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    if (updates.containsKey("full_name"))
-                        user.setFullName(updates.get("full_name"));
-                    if (updates.containsKey("phone"))
-                        user.setPhone(updates.get("phone"));
-
-                    // Builder specific updates
-                    if (updates.containsKey("company_name"))
-                        user.setCompanyName(updates.get("company_name"));
-                    if (updates.containsKey("gst_number"))
-                        user.setGstNumber(updates.get("gst_number"));
-                    if (updates.containsKey("address"))
-                        user.setAddress(updates.get("address"));
-
-                    userRepository.save(user);
-                    return ResponseEntity.ok(Map.of("success", true, "message", "Profile updated successfully"));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
 }

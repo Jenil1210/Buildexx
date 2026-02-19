@@ -197,18 +197,7 @@ const Header = ({ compareCount, wishlistCount }) => {
                       <li>
                         <hr className="dropdown-divider" />
                       </li>
-                      <li>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
-                          style={{ transition: 'all 0.2s ease' }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        >
-                          <i className="bi bi-person-circle me-2"></i>
-                          My Profile
-                        </button>
-                      </li>
+
                       <li>
                         <button
                           className="dropdown-item"
