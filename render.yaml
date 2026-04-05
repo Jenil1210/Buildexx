@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: buildex-backend
+    env: docker
+    plan: free
+    region: singapore # or ohio, use closest to you
+    buildCommand: docker build -t buildex-backend .
+    startCommand: docker run -p 8080:8080 buildex-backend
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: buildex-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: buildex-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: buildex-db
+          property: password
+    healthCheckPath: /health
