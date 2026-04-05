@@ -85,9 +85,9 @@ const Login = () => {
       >
         {error && (
           <div className="alert alert-danger d-flex align-items-center" role="alert" style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            color: '#FCA5A5',
+            background: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
+            color: 'var(--danger-color)',
             borderRadius: '10px'
           }}>
             <i className="bi bi-exclamation-circle me-2"></i>

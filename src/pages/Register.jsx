@@ -186,9 +186,9 @@ const Register = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="alert alert-danger d-flex align-items-center" role="alert" style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              color: '#FCA5A5',
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              color: 'var(--danger-color)',
               borderRadius: '10px'
             }}>
             <i className="bi bi-exclamation-circle me-2"></i>
@@ -278,7 +278,7 @@ const Register = () => {
                     className="form-control"
                     value={formData.username}
                     onChange={handleChange}
-                    style={{ ...inputStyle, borderColor: errors.username ? '#EF4444' : 'rgba(255,255,255,0.1)' }}
+                    style={{ ...inputStyle, borderColor: errors.username ? '#EF4444' : 'var(--section-divider)' }}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                   />
@@ -294,7 +294,7 @@ const Register = () => {
                   className="form-control"
                   value={formData.email}
                   onChange={handleChange}
-                  style={{ ...inputStyle, borderColor: errors.email ? '#EF4444' : 'rgba(255,255,255,0.1)' }}
+                  style={{ ...inputStyle, borderColor: errors.email ? '#EF4444' : 'var(--section-divider)' }}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 />
@@ -310,7 +310,7 @@ const Register = () => {
                     className="form-control"
                     value={formData.password}
                     onChange={handleChange}
-                    style={{ ...inputStyle, paddingRight: '35px', borderColor: errors.password ? '#EF4444' : 'rgba(255,255,255,0.1)' }}
+                    style={{ ...inputStyle, paddingRight: '35px', borderColor: errors.password ? '#EF4444' : 'var(--section-divider)' }}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                   />
@@ -327,7 +327,7 @@ const Register = () => {
                     className="form-control"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    style={{ ...inputStyle, paddingRight: '35px', borderColor: errors.confirmPassword ? '#EF4444' : 'rgba(255,255,255,0.1)' }}
+                    style={{ ...inputStyle, paddingRight: '35px', borderColor: errors.confirmPassword ? '#EF4444' : 'var(--section-divider)' }}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                   />
@@ -376,7 +376,7 @@ const Register = () => {
                   className="form-control"
                   value={formData.fullName}
                   onChange={handleChange}
-                  style={{ ...inputStyle, borderColor: errors.fullName ? '#EF4444' : 'rgba(255,255,255,0.1)' }}
+                  style={{ ...inputStyle, borderColor: errors.fullName ? '#EF4444' : 'var(--section-divider)' }}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 />
@@ -394,7 +394,7 @@ const Register = () => {
                     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                     setFormData(prev => ({ ...prev, phone: val }));
                   }}
-                  style={{ ...inputStyle, borderColor: errors.phone ? '#EF4444' : 'rgba(255,255,255,0.1)' }}
+                  style={{ ...inputStyle, borderColor: errors.phone ? '#EF4444' : 'var(--section-divider)' }}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 />
@@ -427,9 +427,9 @@ const Register = () => {
                     style={{
                       padding: '12px',
                       borderRadius: '12px',
-                      border: formData.role === 'builder' ? '2px solid #C8A24A' : '1px solid rgba(255,255,255,0.1)',
-                      background: formData.role === 'builder' ? 'rgba(200,162,74,0.1)' : 'rgba(255,255,255,0.03)',
-                      color: formData.role === 'builder' ? '#C8A24A' : 'rgba(255,255,255,0.7)',
+                      border: formData.role === 'builder' ? '2px solid #C8A24A' : '1px solid var(--section-divider)',
+                      background: formData.role === 'builder' ? 'rgba(200,162,74,0.1)' : 'var(--card-bg)',
+                      color: formData.role === 'builder' ? '#C8A24A' : 'var(--secondary-text)',
                       fontWeight: '600',
                       transition: 'all 0.3s ease'
                     }}
