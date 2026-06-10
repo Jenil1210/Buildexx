@@ -11,3 +11,11 @@ DELETE FROM property_amenities a USING property_amenities b WHERE a.ctid < b.cti
 2026-02-15 23:39:14.420415+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM property_amenities a [*]USING property_amenities b WHERE a.ctid < b.ctid AND a.property_id = b.property_id AND a.amenity = b.amenity"; SQL statement:
 DELETE FROM property_amenities a USING property_amenities b WHERE a.ctid < b.ctid AND a.property_id = b.property_id AND a.amenity = b.amenity [42000-224]
+2026-05-06 10:05:13.407710+05:30 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-224]
+2026-05-06 10:06:06.733909+05:30 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-224]
+2026-05-06 10:07:49.387679+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-224]
+2026-05-06 10:11:20.961733+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-224]

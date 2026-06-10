@@ -114,9 +114,35 @@ public class EmailService {
         }
 
         /**
-         * Send email via Resend API
+         * Send email using SMTP (JavaMailSender) as primary, fallback to Resend API.
          */
+        private boolean sendSmtpEmail(String from, String to, String subject, String html) {
+                try {
+                        MimeMessage message = javaMailSender.createMimeMessage();
+                        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                        helper.setFrom(from);
+                        helper.setTo(to);
+                        helper.setSubject(subject);
+                        helper.setText(html, true);
+
+                        javaMailSender.send(message);
+                        System.out.println("✅ Email sent via SMTP: " + subject + " to " + to);
+                        return true;
+                } catch (Exception e) {
+                        System.err.println("❌ Failed to send email via SMTP: " + e.getMessage());
+                        return false;
+                }
+        }
+
         private boolean sendResendEmail(String from, String to, String subject, String html) {
+                // 1. Try sending via SMTP (Gmail SMTP configured in application.properties)
+                if (sendSmtpEmail(from, to, subject, html)) {
+                        return true;
+                }
+
+                // 2. Fallback to Resend API if SMTP fails
+                System.out.println("⚠️ SMTP failed, falling back to Resend API...");
                 try {
                         HttpHeaders headers = new HttpHeaders();
                         headers.setContentType(MediaType.APPLICATION_JSON);

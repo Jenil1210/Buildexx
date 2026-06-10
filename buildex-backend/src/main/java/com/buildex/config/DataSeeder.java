@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-// @Component  // Temporarily disabled due to database connection issues
+@Component
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -24,13 +24,17 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        // Seed Properties if none exist
-        if (propertyRepository.count() == 0) {
-            System.out.println("No properties found. Seeding sample property data...");
-            seedData();
-        } else {
-            System.out.println("Properties already exist. Skipping heavy seeding to speed up startup.");
+    public void run(String... args) {
+        try {
+            // Seed Properties if none exist
+            if (propertyRepository.count() == 0) {
+                System.out.println("No properties found. Seeding sample property data...");
+                seedData();
+            } else {
+                System.out.println("Properties already exist. Skipping heavy seeding to speed up startup.");
+            }
+        } catch (Exception e) {
+            System.err.println("Data Seeder encountered an error (database might be offline or sleeping): " + e.getMessage());
         }
     }
 
