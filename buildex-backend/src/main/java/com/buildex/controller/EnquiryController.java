@@ -4,10 +4,13 @@ import com.buildex.entity.Enquiry;
 import com.buildex.entity.Property;
 import com.buildex.repository.PropertyRepository;
 import com.buildex.service.EnquiryService;
+import com.buildex.model.AuthenticatedUser;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,34 +49,55 @@ public class EnquiryController {
     }
 
     @GetMapping("/property/{propertyId}")
-    public ResponseEntity<List<Enquiry>> getEnquiriesByPropertyId(@PathVariable Long propertyId) {
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
+    public ResponseEntity<?> getEnquiriesByPropertyId(@PathVariable Long propertyId, @AuthenticationPrincipal AuthenticatedUser principal) {
+        if (!principal.getRole().equalsIgnoreCase("admin")) {
+            Property property = propertyRepository.findById(propertyId)
+                    .orElse(null);
+            if (property == null || property.getBuilder() == null || !property.getBuilder().getId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not own this property");
+            }
+        }
         List<Enquiry> enquiries = enquiryService.getEnquiriesByPropertyId(propertyId);
         return ResponseEntity.ok(enquiries);
     }
 
     @GetMapping("/builder/{builderId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('BUILDER') and #builderId == authentication.principal.id)")
     public ResponseEntity<List<Enquiry>> getEnquiriesByBuilderId(@PathVariable Long builderId) {
         List<Enquiry> enquiries = enquiryService.getEnquiriesByBuilderId(builderId);
         return ResponseEntity.ok(enquiries);
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<List<Enquiry>> getEnquiriesByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(enquiryService.getEnquiriesByUserId(userId));
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Enquiry>> getAllEnquiries() {
         return ResponseEntity.ok(enquiryService.getAllEnquiries());
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Enquiry> updateStatus(@PathVariable Long id, @RequestParam String status) {
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam String status, @AuthenticationPrincipal AuthenticatedUser principal) {
+        if (!principal.getRole().equalsIgnoreCase("admin")) {
+            Enquiry enquiry = enquiryService.getEnquiryById(id)
+                    .orElse(null);
+            if (enquiry == null || enquiry.getProperty() == null || enquiry.getProperty().getBuilder() == null ||
+                !enquiry.getProperty().getBuilder().getId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not own this resource");
+            }
+        }
         Enquiry updated = enquiryService.updateEnquiryStatus(id, status);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteEnquiry(@PathVariable Long id) {
         enquiryService.deleteEnquiry(id);
         return ResponseEntity.noContent().build();

@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface RentRequestRepository extends JpaRepository<RentRequest, Long> {
     List<RentRequest> findByPropertyId(Long propertyId);
+    List<RentRequest> findByEmail(String email);
 
     @Query("SELECT rr FROM RentRequest rr WHERE rr.property.id IN " +
             "(SELECT p.id FROM Property p WHERE p.builder.id = :builderId)")

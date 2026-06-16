@@ -3,7 +3,11 @@ package com.buildex.controller;
 import com.buildex.entity.Payment;
 import com.buildex.service.EmailService;
 import com.buildex.service.PaymentService;
+import com.buildex.model.AuthenticatedUser;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -20,9 +24,13 @@ public class PaymentController {
     }
 
     @PostMapping("/create-order")
-    public ResponseEntity<?> createOrder(@RequestBody Map<String, Long> payload) {
+    @PreAuthorize("hasAnyRole('USER', 'BUILDER', 'ADMIN')")
+    public ResponseEntity<?> createOrder(@RequestBody Map<String, Long> payload, @AuthenticationPrincipal AuthenticatedUser principal) {
         try {
             Long userId = payload.get("userId");
+            if (!principal.getRole().equalsIgnoreCase("admin") && !principal.getId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access Denied"));
+            }
             Long propertyId = payload.get("propertyId");
             Payment payment = paymentService.createOrder(userId, propertyId);
             return ResponseEntity.ok(payment);
@@ -46,32 +54,50 @@ public class PaymentController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<?> getUserPayments(@PathVariable Long userId) {
         return ResponseEntity.ok(paymentService.getUserPayments(userId));
     }
 
     @GetMapping("/builder/{builderId}")
+    @PreAuthorize("hasRole('ADMIN') or #builderId == authentication.principal.id")
     public ResponseEntity<?> getBuilderPayments(@PathVariable Long builderId) {
         return ResponseEntity.ok(paymentService.getBuilderPayments(builderId));
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllPayments() {
         return ResponseEntity.ok(paymentService.getAllPayments());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPaymentById(@PathVariable Long id) {
-        return ResponseEntity.ok(paymentService.getPaymentById(id));
+    @PreAuthorize("hasAnyRole('USER', 'BUILDER', 'ADMIN')")
+    public ResponseEntity<?> getPaymentById(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser principal) {
+        Payment payment = paymentService.getPaymentById(id);
+        if (payment == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!principal.getRole().equalsIgnoreCase("admin") &&
+            !payment.getUser().getId().equals(principal.getId()) &&
+            (payment.getProperty().getBuilder() == null || !payment.getProperty().getBuilder().getId().equals(principal.getId()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access Denied"));
+        }
+        return ResponseEntity.ok(payment);
     }
 
     @GetMapping("/check-booking")
-    public ResponseEntity<?> checkBookingStatus(@RequestParam Long userId, @RequestParam Long propertyId) {
+    @PreAuthorize("hasAnyRole('USER', 'BUILDER', 'ADMIN')")
+    public ResponseEntity<?> checkBookingStatus(@RequestParam Long userId, @RequestParam Long propertyId, @AuthenticationPrincipal AuthenticatedUser principal) {
+        if (!principal.getRole().equalsIgnoreCase("admin") && !principal.getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access Denied"));
+        }
         boolean isBooked = paymentService.hasUserBookedProperty(userId, propertyId);
         return ResponseEntity.ok(Map.of("isBooked", isBooked));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deletePayment(@PathVariable Long id) {
         try {
             paymentService.deletePayment(id);

@@ -4,7 +4,11 @@ import com.buildex.entity.User;
 import com.buildex.entity.Withdrawal;
 import com.buildex.repository.UserRepository;
 import com.buildex.repository.WithdrawalRepository;
+import com.buildex.model.AuthenticatedUser;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -25,9 +29,14 @@ public class WithdrawalController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createWithdrawalRequest(@RequestBody Map<String, Object> payload) {
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
+    public ResponseEntity<?> createWithdrawalRequest(@RequestBody Map<String, Object> payload, @AuthenticationPrincipal AuthenticatedUser principal) {
         try {
             Long builderId = Long.valueOf(payload.get("builderId").toString());
+            if (!principal.getRole().equalsIgnoreCase("admin") && !principal.getId().equals(builderId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access Denied"));
+            }
+
             Double amount = Double.valueOf(payload.get("amount").toString());
 
             User builder = userRepository.findById(builderId)
@@ -51,16 +60,19 @@ public class WithdrawalController {
     }
 
     @GetMapping("/builder/{builderId}")
+    @PreAuthorize("hasRole('ADMIN') or #builderId == authentication.principal.id")
     public ResponseEntity<List<Withdrawal>> getBuilderWithdrawals(@PathVariable Long builderId) {
         return ResponseEntity.ok(withdrawalRepository.findByBuilderId(builderId));
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Withdrawal>> getAllWithdrawals() {
         return ResponseEntity.ok(withdrawalRepository.findAll());
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateWithdrawalStatus(
             @PathVariable Long id,
             @RequestParam String status,

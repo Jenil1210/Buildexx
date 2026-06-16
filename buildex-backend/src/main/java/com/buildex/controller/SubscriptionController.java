@@ -3,6 +3,7 @@ package com.buildex.controller;
 import com.buildex.entity.User;
 import com.buildex.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class SubscriptionController {
     }
 
     @PostMapping("/{builderId}/subscribe")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('BUILDER') and #builderId == authentication.principal.id)")
     public ResponseEntity<?> subscribeBuilder(@PathVariable Long builderId) {
         Optional<User> userOpt = userRepository.findById(builderId);
         if (userOpt.isEmpty()) {

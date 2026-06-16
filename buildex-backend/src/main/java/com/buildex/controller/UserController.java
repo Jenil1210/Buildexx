@@ -4,6 +4,7 @@ import com.buildex.dto.BuilderSummaryDTO;
 import com.buildex.entity.User;
 import com.buildex.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -33,6 +35,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUserStatus(@PathVariable Long id, @RequestBody Map<String, String> statusMap) {
         String status = statusMap.get("status");
         if (status == null || status.isEmpty()) {

@@ -3,6 +3,7 @@ package com.buildex.controller;
 import com.buildex.entity.User;
 import com.buildex.repository.UserRepository;
 import com.buildex.service.EmailService;
+import com.buildex.service.JwtUtil;
 import com.buildex.service.OtpService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,14 +22,15 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final OtpService otpService;
+    private final JwtUtil jwtUtil;
 
-    // Explicit constructor
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService,
-            OtpService otpService) {
+            OtpService otpService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.otpService = otpService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
@@ -108,7 +110,6 @@ public class AuthController {
 
         User user = userOpt.get();
         user.setStatus("active");
-        user.setStatus("active");
         userRepository.save(user);
 
         // Send Welcome Email
@@ -118,7 +119,10 @@ public class AuthController {
             System.err.println("Failed to send welcome email: " + e.getMessage());
         }
 
-        // Return user info (excluding password)
+        // Generate JWT token
+        String token = jwtUtil.generateToken(user);
+
+        // Return user info + token
         Map<String, Object> userData = new HashMap<>();
         userData.put("id", user.getId());
         userData.put("username", user.getUsername());
@@ -129,7 +133,7 @@ public class AuthController {
         userData.put("subscription_status", user.getSubscriptionStatus());
         userData.put("subscription_plan", user.getSubscriptionPlan());
 
-        return ResponseEntity.ok(Map.of("success", true, "user", userData));
+        return ResponseEntity.ok(Map.of("success", true, "token", token, "user", userData));
     }
 
     @PostMapping("/login")
@@ -151,6 +155,9 @@ public class AuthController {
                     .body(Map.of("success", false, "message", "Account is not active. Please verify your email."));
         }
 
+        // Generate JWT token
+        String token = jwtUtil.generateToken(user);
+
         Map<String, Object> userData = new HashMap<>();
         userData.put("id", user.getId());
         userData.put("username", user.getUsername());
@@ -161,7 +168,7 @@ public class AuthController {
         userData.put("subscription_status", user.getSubscriptionStatus());
         userData.put("subscription_plan", user.getSubscriptionPlan());
 
-        return ResponseEntity.ok(Map.of("success", true, "user", userData));
+        return ResponseEntity.ok(Map.of("success", true, "token", token, "user", userData));
     }
 
     public static class RegisterRequest {

@@ -14,13 +14,33 @@ public class RentRequestService {
     private final RentRequestRepository rentRequestRepository;
     private final com.buildex.repository.PropertyRepository propertyRepository;
     private final EmailService emailService;
+    private final com.buildex.repository.UserRepository userRepository;
 
     public RentRequestService(RentRequestRepository rentRequestRepository,
             com.buildex.repository.PropertyRepository propertyRepository,
-            EmailService emailService) {
+            EmailService emailService,
+            com.buildex.repository.UserRepository userRepository) {
         this.rentRequestRepository = rentRequestRepository;
         this.propertyRepository = propertyRepository;
         this.emailService = emailService;
+        this.userRepository = userRepository;
+    }
+
+    public List<RentRequest> getRentRequestsByUserId(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> {
+                    List<RentRequest> list = rentRequestRepository.findByEmail(user.getEmail());
+                    list.forEach(r -> {
+                        if (r.getProperty() != null) {
+                            org.hibernate.Hibernate.initialize(r.getProperty());
+                            if (r.getProperty().getBuilder() != null) {
+                                org.hibernate.Hibernate.initialize(r.getProperty().getBuilder());
+                            }
+                        }
+                    });
+                    return list;
+                })
+                .orElse(java.util.Collections.emptyList());
     }
 
     @org.springframework.transaction.annotation.Transactional

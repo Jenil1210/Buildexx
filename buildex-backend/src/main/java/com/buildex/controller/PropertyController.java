@@ -5,11 +5,14 @@ import com.buildex.entity.User;
 import com.buildex.repository.UserRepository;
 import com.buildex.service.PropertyService;
 import com.buildex.service.impl.FileStorageService;
+import com.buildex.model.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
@@ -39,6 +42,7 @@ public class PropertyController {
     }
 
     @PostMapping("/builder/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('BUILDER') and #userId == authentication.principal.id)")
     public ResponseEntity<?> createProperty(@PathVariable Long userId, @RequestBody Property property) {
         // Log the incoming request
         System.out.println("Received Create Property Request for User ID: " + userId);
@@ -48,13 +52,6 @@ public class PropertyController {
         if (!userRepository.existsById(userId)) {
             return ResponseEntity.badRequest().body("User not found with ID " + userId);
         }
-
-        // Optional: Check if role is builder
-        userRepository.findById(userId).ifPresent(user -> {
-            if (!"builder".equalsIgnoreCase(user.getRole())) {
-                // throw new RuntimeException("User is not a builder"); // Or handle gracefully
-            }
-        });
 
         try {
             Property createdProperty = propertyService.createProperty(userId, property);
@@ -67,6 +64,7 @@ public class PropertyController {
     }
 
     @PostMapping("/upload-images")
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
     public ResponseEntity<?> uploadPropertyImages(@RequestParam("files") MultipartFile[] files) {
         try {
             List<String> urls = new ArrayList<>();
@@ -98,6 +96,7 @@ public class PropertyController {
 
     // Admin: Get ALL properties (including unverified)
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PropertySummaryDTO>> getAllPropertiesForAdmin() {
         return ResponseEntity.ok(propertyService.getAllPropertiesForAdmin());
     }
@@ -115,6 +114,7 @@ public class PropertyController {
     }
 
     @GetMapping("/builder/{builderId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('BUILDER') and #builderId == authentication.principal.id)")
     public ResponseEntity<List<Property>> getPropertiesByBuilderId(@PathVariable Long builderId) {
         List<Property> properties = propertyService.getPropertiesByBuilderId(builderId);
         return ResponseEntity.ok(properties);
@@ -122,6 +122,7 @@ public class PropertyController {
 
     // Get properties by User ID
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<List<Property>> getPropertiesByUserId(@PathVariable Long userId) {
         // Find user by ID
         Optional<User> userOpt = userRepository.findById(userId);
@@ -135,23 +136,50 @@ public class PropertyController {
     }
 
     @PutMapping("/{propertyId}")
-    public ResponseEntity<Property> updateProperty(@PathVariable Long propertyId,
-            @RequestBody Property updatedProperty) {
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
+    public ResponseEntity<?> updateProperty(@PathVariable Long propertyId,
+            @RequestBody Property updatedProperty,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        if (!principal.getRole().equalsIgnoreCase("admin")) {
+            Optional<Property> existing = propertyService.getPropertyById(propertyId);
+            if (existing.isEmpty() || existing.get().getBuilder() == null ||
+                !existing.get().getBuilder().getId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not own this property");
+            }
+        }
         Optional<Property> propertyOpt = propertyService.updateProperty(propertyId, updatedProperty);
         return propertyOpt.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PatchMapping("/{propertyId}/availability")
-    public ResponseEntity<Property> updateAvailabilityStatus(@PathVariable Long propertyId,
-            @RequestParam Property.AvailabilityStatus status) {
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
+    public ResponseEntity<?> updateAvailabilityStatus(@PathVariable Long propertyId,
+            @RequestParam Property.AvailabilityStatus status,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        if (!principal.getRole().equalsIgnoreCase("admin")) {
+            Optional<Property> existing = propertyService.getPropertyById(propertyId);
+            if (existing.isEmpty() || existing.get().getBuilder() == null ||
+                !existing.get().getBuilder().getId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not own this property");
+            }
+        }
         Optional<Property> propertyOpt = propertyService.updateAvailabilityStatus(propertyId, status);
         return propertyOpt.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{propertyId}")
-    public ResponseEntity<Void> deleteProperty(@PathVariable Long propertyId) {
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
+    public ResponseEntity<?> deleteProperty(@PathVariable Long propertyId,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        if (!principal.getRole().equalsIgnoreCase("admin")) {
+            Optional<Property> existing = propertyService.getPropertyById(propertyId);
+            if (existing.isEmpty() || existing.get().getBuilder() == null ||
+                !existing.get().getBuilder().getId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not own this property");
+            }
+        }
         propertyService.deleteProperty(propertyId);
         return ResponseEntity.noContent().build();
     }
@@ -173,6 +201,7 @@ public class PropertyController {
     }
 
     @PostMapping("/upload-legal-doc")
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
     public ResponseEntity<String> uploadLegalDocument(@RequestParam("file") MultipartFile file) {
         try {
             String url = cloudinaryService.uploadFile(file, "properties/legal");
@@ -184,6 +213,7 @@ public class PropertyController {
     }
 
     @PostMapping("/upload-brochure")
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
     public ResponseEntity<String> uploadBrochure(@RequestParam("file") MultipartFile file) {
         try {
             String url = cloudinaryService.uploadBrochure(file);
@@ -195,6 +225,7 @@ public class PropertyController {
     }
 
     @PostMapping("/upload-panorama")
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
     public ResponseEntity<?> uploadPanorama(@RequestParam("files") List<MultipartFile> files) {
         try {
             // Upload all files in PARALLEL for speed
@@ -224,13 +255,9 @@ public class PropertyController {
     }
 
     @GetMapping("/{propertyId}/legal-doc")
-    public ResponseEntity<?> getLegalDocument(@PathVariable Long propertyId, @RequestParam Long userId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getLegalDocument(@PathVariable Long propertyId, @RequestParam(required = false) Long userId) {
         try {
-            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-            if (!"admin".equalsIgnoreCase(user.getRole())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
             Property property = propertyService.getPropertyById(propertyId)
                     .orElseThrow(() -> new RuntimeException("Property not found"));
             String legalDocUrl = property.getLegalDocumentUrl();
@@ -249,26 +276,12 @@ public class PropertyController {
     }
 
     @PatchMapping("/{propertyId}/verify")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> verifyProperty(@PathVariable Long propertyId,
             @RequestParam Boolean isVerified,
-            @RequestParam Long userId) {
+            @RequestParam(required = false) Long userId) {
         try {
-            Optional<User> userOpt = userRepository.findById(userId);
-            if (userOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin user not found");
-            }
-
-            User user = userOpt.get();
-            // Optional: Ensure user is admin (restoring safety but making it more
-            // informative)
-            if (!"admin".equalsIgnoreCase(user.getRole())) {
-                System.out.println(
-                        "Property verification attempted by non-admin: " + userId + " (Role: " + user.getRole() + ")");
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can verify properties");
-            }
-
-            System.out.println("Property verification request: id=" + propertyId + ", status=" + isVerified
-                    + ", adminId=" + userId);
+            System.out.println("Property verification request: id=" + propertyId + ", status=" + isVerified);
 
             Optional<Property> propertyOpt = propertyService.verifyProperty(propertyId, isVerified);
             return propertyOpt.map(ResponseEntity::ok)
@@ -340,8 +353,17 @@ public class PropertyController {
     }
 
     @PatchMapping("/{propertyId}/boost")
-    public ResponseEntity<?> boostProperty(@PathVariable Long propertyId) {
+    @PreAuthorize("hasAnyRole('BUILDER', 'ADMIN')")
+    public ResponseEntity<?> boostProperty(@PathVariable Long propertyId,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
         try {
+            if (!principal.getRole().equalsIgnoreCase("admin")) {
+                Optional<Property> existing = propertyService.getPropertyById(propertyId);
+                if (existing.isEmpty() || existing.get().getBuilder() == null ||
+                    !existing.get().getBuilder().getId().equals(principal.getId())) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not own this property");
+                }
+            }
             Optional<Property> boosted = propertyService.boostProperty(propertyId);
             return boosted.map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());

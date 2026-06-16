@@ -42,6 +42,10 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setCurrentUser(data.user);
         localStorage.setItem('buildex_user', JSON.stringify(data.user));
+        // Store JWT token for API calls
+        if (data.token) {
+          localStorage.setItem('buildex_token', data.token);
+        }
         setLoading(false);
         return { success: true, user: data.user };
       } else {
@@ -59,6 +63,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('buildex_user');
+    localStorage.removeItem('buildex_token');
   };
 
   const verifyOtp = async (email, otp) => {
@@ -76,6 +81,10 @@ export const AuthProvider = ({ children }) => {
         const newUser = data.user;
         setCurrentUser(newUser);
         localStorage.setItem('buildex_user', JSON.stringify(newUser));
+        // Store JWT token
+        if (data.token) {
+          localStorage.setItem('buildex_token', data.token);
+        }
         setPendingRegistration(null);
         setLoading(false);
         return { success: true, user: newUser };

@@ -25,6 +25,24 @@ const handleResponse = async (response) => {
     }
 };
 
+/** Read the JWT token stored after login / OTP verification. */
+const getToken = () => localStorage.getItem('buildex_token');
+
+/**
+ * Authenticated fetch — automatically attaches the Authorization header when
+ * a JWT token is present in localStorage.  Accepts the same arguments as
+ * the native fetch() API.
+ */
+const authFetch = (url, options = {}) => {
+    const token = getToken();
+    const headers = { ...(options.headers || {}) };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return fetch(url, { ...options, headers });
+};
+
+
 // Normalize backend property data to frontend field names
 export const normalizeProperty = (p) => {
     if (!p) return p;
@@ -170,7 +188,7 @@ export const getPropertyById = async (id) => {
 export const createProperty = async (data) => {
     try {
         console.log('[apiService] Creating property with payload:', JSON.stringify(data, null, 2));
-        const response = await fetch(`${API_BASE_URL}/api/properties/builder/${data.builderId}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/builder/${data.builderId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -185,7 +203,7 @@ export const createProperty = async (data) => {
 
 export const updateProperty = async (id, data) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -199,7 +217,7 @@ export const updateProperty = async (id, data) => {
 
 export const deleteProperty = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/${id}`, {
             method: 'DELETE'
         });
         if (response.ok) {
@@ -215,7 +233,7 @@ export const deleteProperty = async (id) => {
 
 export const deleteComplaint = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/complaints/${id}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/complaints/${id}`, {
             method: 'DELETE'
         });
         if (response.ok) {
@@ -230,7 +248,7 @@ export const deleteComplaint = async (id) => {
 
 export const deleteEnquiry = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/enquiries/${id}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/enquiries/${id}`, {
             method: 'DELETE'
         });
         if (response.ok) {
@@ -245,7 +263,7 @@ export const deleteEnquiry = async (id) => {
 
 export const deleteRentRequest = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/rent-requests/${id}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/rent-requests/${id}`, {
             method: 'DELETE'
         });
         if (response.ok) {
@@ -260,7 +278,7 @@ export const deleteRentRequest = async (id) => {
 
 export const updatePropertyAvailability = async (id, status) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/properties/${id}/availability?status=${status}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/${id}/availability?status=${status}`, {
             method: 'PATCH'
         });
         const result = await handleResponse(response);
@@ -277,7 +295,7 @@ export const uploadPropertyImages = async (files) => {
             formData.append('files', file);
         });
 
-        const response = await fetch(`${API_BASE_URL}/api/properties/upload-images`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/upload-images`, {
             method: 'POST',
             body: formData
         });
@@ -295,7 +313,7 @@ export const uploadLegalDocument = async (file) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch(`${API_BASE_URL}/api/properties/upload-legal-doc`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/upload-legal-doc`, {
             method: 'POST',
             body: formData
         });
@@ -318,7 +336,7 @@ export const uploadBrochure = async (file) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch(`${API_BASE_URL}/api/properties/upload-brochure`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/upload-brochure`, {
             method: 'POST',
             body: formData
         });
@@ -343,7 +361,7 @@ export const uploadPanoramaImages = async (files) => {
             formData.append('files', file);
         });
 
-        const response = await fetch(`${API_BASE_URL}/api/properties/upload-panorama`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/upload-panorama`, {
             method: 'POST',
             body: formData
         });
@@ -395,7 +413,7 @@ export const removeFromWishlist = async (userId, propertyId) => {
 
 export const getUserEnquiries = async (userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/enquiries/user/${userId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/enquiries/user/${userId}`);
         const data = await handleResponse(response);
         return { success: true, data };
     } catch (error) {
@@ -405,7 +423,7 @@ export const getUserEnquiries = async (userId) => {
 
 export const getUserRentHistory = async (userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/rent-requests/user/${userId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/rent-requests/user/${userId}`);
         const data = await handleResponse(response);
 
         let requests = [];
@@ -430,7 +448,7 @@ export const getUserRentHistory = async (userId) => {
 
 export const getUserPayments = async (userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/payments/user/${userId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/payments/user/${userId}`);
         const data = await handleResponse(response);
         return { success: true, data };
     } catch (error) {
@@ -440,7 +458,7 @@ export const getUserPayments = async (userId) => {
 
 export const fetchUserRentSubscriptions = async (userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/rent-subscriptions/user/${userId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/rent-subscriptions/user/${userId}`);
         const data = await handleResponse(response);
 
         // Normalize property data inside subscriptions
@@ -472,7 +490,7 @@ export const payRent = async (subscriptionId, amount) => {
 
 export const getPropertiesByBuilder = async (builderId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/properties/builder/${builderId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/properties/builder/${builderId}`);
         const data = await handleResponse(response);
         const properties = Array.isArray(data) ? data : (data.data || data.content || []);
         return { success: true, data: properties.map(normalizeProperty) };
@@ -483,7 +501,7 @@ export const getPropertiesByBuilder = async (builderId) => {
 
 export const getBuilderEnquiries = async (builderId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/enquiries/builder/${builderId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/enquiries/builder/${builderId}`);
         const data = await handleResponse(response);
         const enquiries = Array.isArray(data) ? data : (data.data || data.content || []);
         return { success: true, data: enquiries };
@@ -494,7 +512,7 @@ export const getBuilderEnquiries = async (builderId) => {
 
 export const updateEnquiryStatus = async (id, status) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/enquiries/${id}/status?status=${status}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/enquiries/${id}/status?status=${status}`, {
             method: 'PATCH'
         });
         return { success: true };
@@ -505,7 +523,7 @@ export const updateEnquiryStatus = async (id, status) => {
 
 export const getRentRequestsByBuilder = async (builderId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/rent-requests/builder/${builderId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/rent-requests/builder/${builderId}`);
         const data = await handleResponse(response);
         const requests = Array.isArray(data) ? data : (data.data || data.content || []);
         return { success: true, data: requests };
@@ -520,7 +538,7 @@ export const updateRentRequestStatus = async (id, status) => {
             ? `${API_BASE_URL}/api/rent-requests/${id}/approve`
             : `${API_BASE_URL}/api/rent-requests/${id}/reject`;
 
-        const response = await fetch(endpoint, {
+        const response = await authFetch(endpoint, {
             method: 'PATCH'
         });
 
@@ -536,7 +554,7 @@ export const updateRentRequestStatus = async (id, status) => {
 
 export const getBuilderPayments = async (builderId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/payments/builder/${builderId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/payments/builder/${builderId}`);
         const data = await handleResponse(response);
         return { success: true, data };
     } catch (error) {
@@ -546,7 +564,7 @@ export const getBuilderPayments = async (builderId) => {
 
 export const createWithdrawalRequest = async (builderId, amount) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/withdrawals`, {
+        const response = await authFetch(`${API_BASE_URL}/api/withdrawals`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ builderId, amount })
@@ -560,7 +578,7 @@ export const createWithdrawalRequest = async (builderId, amount) => {
 
 export const getBuilderWithdrawals = async (builderId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/withdrawals/builder/${builderId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/withdrawals/builder/${builderId}`);
         const data = await handleResponse(response);
         // Calculate balance from data if needed, or assume backend does it (Controller returns List<Withdrawal>)
         // BuilderDashboard expects success, data, plus totalEarned/balance
@@ -592,7 +610,7 @@ export const getAllBuilders = async () => {
 
 export const updateBuilderStatus = async (id, status) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/users/${id}/status?status=${status}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/users/${id}/status?status=${status}`, {
             method: 'PATCH'
         });
         return { success: true };
@@ -603,7 +621,7 @@ export const updateBuilderStatus = async (id, status) => {
 
 export const getAllProperties = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/properties/all`);
+        const response = await authFetch(`${API_BASE_URL}/api/properties/all`);
         const data = await handleResponse(response);
         let properties = [];
         if (Array.isArray(data)) {
@@ -625,7 +643,7 @@ export const updatePropertyStatus = async (id, status) => {
 
 export const getAllComplaints = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/complaints`);
+        const response = await authFetch(`${API_BASE_URL}/api/complaints`);
         const data = await handleResponse(response);
         // Complaints contain property objects which should be normalized
         const normalized = (data || []).map(c => ({
@@ -640,7 +658,7 @@ export const getAllComplaints = async () => {
 
 export const updateComplaintStatus = async (id, status) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/complaints/${id}/status?status=${status}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/complaints/${id}/status?status=${status}`, {
             method: 'PATCH'
         });
         return { success: true };
@@ -651,7 +669,7 @@ export const updateComplaintStatus = async (id, status) => {
 
 export const verifyProperty = async (id, isVerified, userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/properties/${id}/verify?isVerified=${isVerified}&userId=${userId || 1}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/${id}/verify?isVerified=${isVerified}&userId=${userId || 1}`, {
             method: 'PATCH'
         });
         const result = await handleResponse(response);
@@ -663,7 +681,7 @@ export const verifyProperty = async (id, isVerified, userId) => {
 
 export const getAdminEnquiries = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/enquiries/all`);
+        const response = await authFetch(`${API_BASE_URL}/api/enquiries/all`);
         const data = await handleResponse(response);
         // Enquiries contain property objects which should be normalized
         const normalized = (data || []).map(e => ({
@@ -678,7 +696,7 @@ export const getAdminEnquiries = async () => {
 
 export const getAdminPayments = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/payments/all`);
+        const response = await authFetch(`${API_BASE_URL}/api/payments/all`);
         const data = await handleResponse(response);
         return { success: true, data };
     } catch (error) {
@@ -688,7 +706,7 @@ export const getAdminPayments = async () => {
 
 export const getAdminWithdrawals = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/withdrawals/all`);
+        const response = await authFetch(`${API_BASE_URL}/api/withdrawals/all`);
         const data = await handleResponse(response);
         return { success: true, data };
     } catch (error) {
@@ -698,7 +716,7 @@ export const getAdminWithdrawals = async () => {
 
 export const updateWithdrawalStatus = async (id, status, commission, payout) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/withdrawals/${id}/status?status=${status}&commission=${commission || 0}&payout=${payout || 0}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/withdrawals/${id}/status?status=${status}&commission=${commission || 0}&payout=${payout || 0}`, {
             method: 'PATCH'
         });
         const data = await handleResponse(response);
@@ -764,7 +782,7 @@ export const reportProperty = async (data) => {
 // Payment & Booking APIs
 export const createPaymentOrder = async (userId, propertyId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/payments/create-order`, {
+        const response = await authFetch(`${API_BASE_URL}/api/payments/create-order`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, propertyId })
@@ -778,7 +796,7 @@ export const createPaymentOrder = async (userId, propertyId) => {
 
 export const verifyPayment = async (data) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/payments/verify-payment`, {
+        const response = await authFetch(`${API_BASE_URL}/api/payments/verify-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -792,7 +810,7 @@ export const verifyPayment = async (data) => {
 
 export const checkBookingStatus = async (userId, propertyId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/payments/check-booking?userId=${userId}&propertyId=${propertyId}`);
+        const response = await authFetch(`${API_BASE_URL}/api/payments/check-booking?userId=${userId}&propertyId=${propertyId}`);
         const result = await handleResponse(response);
         return { success: true, ...result }; // Backend returns { isBooked: boolean }
     } catch (error) {
@@ -832,7 +850,7 @@ export const deletePayment = async (id) => {
 
 export const boostProperty = async (propertyId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}/boost`, {
+        const response = await authFetch(`${API_BASE_URL}/api/properties/${propertyId}/boost`, {
             method: 'PATCH'
         });
         const data = await handleResponse(response);

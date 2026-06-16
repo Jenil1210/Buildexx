@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,17 +28,20 @@ public class ComplaintController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Complaint>> getAllComplaints() {
         return ResponseEntity.ok(complaintService.getAllComplaints());
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateStatus(@PathVariable Long id, @RequestParam String status) {
         complaintService.updateComplaintStatus(id, status);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteComplaint(@PathVariable Long id) {
         complaintService.deleteComplaint(id);
         return ResponseEntity.noContent().build();
